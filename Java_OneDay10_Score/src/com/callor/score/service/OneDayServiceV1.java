@@ -33,75 +33,95 @@ public class OneDayServiceV1 {
 			if (strMenu.equals("QUIT")) {
 				break;
 			}
-		
 			Integer intMenu = null;
-			
 			try {
 				intMenu = Integer.valueOf(strMenu);
 			} catch (Exception e) {
+				System.out.println("메뉴 선택오류");
+				System.out.println("메뉴는 1,2 또는 QUIT만 입력 가능");
 				continue;
 			}
-			
 				if( intMenu == 1) {
-					this.input();
+					this.inputScore();
 				} else if(intMenu == 2) {
 					this.printScore();
 				}
+				return;
 		}
 		System.out.println("업무 중지!");
 		}
-		public void input () {
-			while (true) {
+		
+		public void inputScore () {
+			
 				System.out.println("=".repeat(50));
 				System.out.println("학생이름을 입력하세요"
 								+ "(입력을 중단하려면 QUIT)");
 				System.out.println("=".repeat(50));
 				System.out.print("이름 >> ");
 				String strName = scan.nextLine();
-				if(strName.equals("QUIT")) {
-					return;
-				}
 				
-				OneDayVO onedayVO = new OneDayVO();
-				onedayVO.setStrName(strName);
-				this.inputScore(onedayVO);
-				return;
-			}
-			
-			
-		}
-		
-		public void inputScore (OneDayVO vo) {
-			
 				System.out.println("=".repeat(50));
-				System.out.print(vo.getStrName());
+				System.out.print(strName);
 				System.out.println(" 학생의 성적을 입력하세요"
 								+ "성적 범위 : 0~100, 입력을 중단하여면 QUIT");
 				System.out.println("=".repeat(50));
 				
 				
-				System.out.print("국어 >> ");
-				Integer intKor = scan.nextInt();
-				System.out.print("영어 >> ");
-				Integer intEng = scan.nextInt();
-				System.out.print("수학 >> ");
-				Integer intMath = scan.nextInt();
-				System.out.print("과학 >> ");
-				Integer intScie = scan.nextInt();
-				System.out.print("국사 >> ");
-				Integer intHist = scan.nextInt();
+				System.out.println("과목별 성적 입력하세요");
+				Integer intkor = this.inputScore("국어");
+				if(intkor == null) {
+					return;
+				}
+				Integer inteng = this.inputScore("영어");
+				if(inteng == null) {
+					return;
+				}
+				Integer intmath = this.inputScore("수학");
+				if(intmath == null) {
+					return;
+				}
+				Integer intscie = this.inputScore("과학");
+				if(intscie == null) {
+					return;
+				}
+				Integer inthist = this.inputScore("국사");
+				if(inthist == null) {
+					return;
+				}
 				
 				OneDayVO onedayVO = new OneDayVO();
+				onedayVO.setStrName(strName);
 				
-				onedayVO.setIntKor(intKor);
-				onedayVO.setIntEng(intEng);
-				onedayVO.setIntMath(intMath);
-				onedayVO.setIntScie(intScie);
-				onedayVO.setIntHist(intHist);
+				onedayVO.setIntKor(intkor);
+				onedayVO.setIntEng(inteng);
+				onedayVO.setIntMath(intmath);
+				onedayVO.setIntScie(intscie);
+				onedayVO.setIntHist(inthist);
 				
 				onedayList.add(onedayVO);
 				this.scoreList(onedayVO);
-			
+				
+		}
+		public Integer inputScore(String subject) {
+			while(true) {
+				System.out.print(subject + ">> ");
+				String strScore = scan.nextLine();
+				if(strScore.equals("QUIT")) {
+					return null;
+				}
+				Integer intScore = 0;
+				try {
+					intScore = Integer.valueOf(strScore);
+				} catch (Exception e) {
+					System.out.println("성적은 숫자로만 입력");
+					continue;
+				}
+				if(intScore < 0 || intScore > 100) {
+					System.out.println("0 ~ 100까지");
+					continue;
+				}
+				return intScore;
+			}
 		}
 		public void scoreList(OneDayVO vo) {
 			
@@ -125,6 +145,16 @@ public class OneDayServiceV1 {
 							+ "과학\t국사\t총점\t평균\n");
 			System.out.println("-".repeat(60));
 			
+
+				int totalKor = 0;
+				int totalEng = 0;
+				int totalMath = 0;
+				int totalScie = 0;
+				int totalHist = 0;
+				
+				int allTotal = 0;
+				float allAvg = 0;
+				
 			for(int i = 0 ;i <onedayList.size(); i++) {
 				OneDayVO odVO = onedayList.get(i);
 				
@@ -137,8 +167,27 @@ public class OneDayServiceV1 {
 				System.out.print(odVO.getTotal()+"\t");
 				System.out.printf("%3.2f\n",odVO.getFloatAvg());
 				
+				totalKor += odVO.getIntKor();
+				totalEng += odVO.getIntEng();
+				totalMath += odVO.getIntMath();
+				totalScie += odVO.getIntScie();
+				totalHist += odVO.getIntHist();
 				
+				allTotal += odVO.getTotal();
+				allAvg += odVO.getFloatAvg();
 			}
+			System.out.println("=".repeat(50));
+			System.out.print("총점\t");
+			System.out.print(totalKor + "\t");
+			System.out.print(totalEng + "\t");
+			System.out.print(totalMath + "\t");
+			System.out.print(totalScie + "\t");
+			System.out.print(totalHist + "\t");
+			System.out.print(allTotal + "\t");
+			
+			System.out.print( allAvg/onedayList.size() + "\n" );
+			
 			this.selecMenu();
+			
 		}
 }
