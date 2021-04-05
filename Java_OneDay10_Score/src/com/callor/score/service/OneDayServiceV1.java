@@ -66,7 +66,6 @@ public class OneDayServiceV1 {
 								+ "성적 범위 : 0~100, 입력을 중단하여면 QUIT");
 				System.out.println("=".repeat(50));
 				
-				
 				System.out.println("과목별 성적 입력하세요");
 				Integer intkor = this.inputScore("국어");
 				if(intkor == null) {
