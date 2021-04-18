@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+
 import com.callor.word.model.WordVO;
 import com.callor.word.service.WordService;
 
@@ -20,16 +21,19 @@ public class OneDayWordImplV1 implements WordService {
 	protected List<WordVO> wordList;
 	protected Scanner scan;
 	protected Random rnd;
+	protected Integer point;
+	protected int nCount;
 
 	private final int 영어 = 0;
 	private final int 한글 = 1;
-	private final int 점수 = 2;
 
 	public OneDayWordImplV1() {
 
 		wordList = new ArrayList<WordVO>();
 		scan = new Scanner(System.in);
 		rnd = new Random();
+		point = 0;
+		nCount = 0;
 
 		this.loadWord();
 	}
@@ -45,7 +49,7 @@ public class OneDayWordImplV1 implements WordService {
 			String strNum = scan.nextLine();
 
 			if (strNum.equals("QUIT")) {
-				System.out.println("종료");
+				System.out.println("게임 종료");
 			}
 			Integer intNum = null;
 			try {
@@ -56,8 +60,8 @@ public class OneDayWordImplV1 implements WordService {
 			}
 			if (intNum == 1) {
 				this.viewWord();
-			} else if (intNum == 2){
-				
+			} else if (intNum == 2) {
+				this.loadScore();
 			} else if (intNum == 3) {
 				this.saveWord();
 			}
@@ -93,18 +97,15 @@ public class OneDayWordImplV1 implements WordService {
 			buffer.close();
 
 		} catch (FileNotFoundException e) {
-			System.out.println("ㅁㄴㅇㅁㄴㅇ");
+			System.out.println(wordFile + "이 존재하지 않습니다");
 		} catch (IOException e) {
-			System.out.println("asdasdasd");
+			System.out.println("파일을 읽는 도중 문제 발생");
 		}
 
 	}
 
 	@Override
 	public void viewWord() {
-
-		int plusPoint = 0;
-		int minusPoint = 0;
 		while (true) {
 			WordVO word = this.getWord();
 			String strEng = word.getEnglish();
@@ -123,7 +124,6 @@ public class OneDayWordImplV1 implements WordService {
 			System.out.println("=".repeat(50));
 			System.out.println(word.toString());
 			System.out.println("제시된 영단어를 바르게 배열하시오(Quit:게임 종료)");
-			System.out.println("건너뛰기 : Pass");
 			System.out.println(Arrays.toString(strWords));
 			System.out.println("=".repeat(50));
 			System.out.print(">> ");
@@ -133,36 +133,41 @@ public class OneDayWordImplV1 implements WordService {
 				System.out.println("게임종료");
 				break;
 			}
-			int nCount = 0;
-			int scorePoint = 0;
-			String pass = strNum;
-			while(true) {
-				if (pass.equals("Pass")) {
-					minusPoint--;
-					scorePoint += minusPoint;
-					System.out.println("현재 점수 : " + scorePoint);
-					continue;
-				}
+			while (true) {
 
 				if (strNum.equalsIgnoreCase(word.getEnglish())) {
 					System.out.println("한글 뜻 :" + word.getKorea());
-					scorePoint += plusPoint++;
-					System.out.println("현재 점수 : " + scorePoint);
+					this.answer();
+					break;
 
-				} else if (strNum != word.getEnglish()) {
-
-					System.out.println("틀렸습니다");
-					System.out.println("힌트 : " + word.getKorea());
-					continue;
+				} else {
+					int wAnswer = this.wrongAnswer();
+					if (wAnswer == 1) {
+						System.out.println(nCount + "번째 재도전");
+						System.out.println("=".repeat(50));
+						System.out.println("힌트:" + word.getKorea());
+					} else if (wAnswer == 2) {
+						point -= 1;
+						System.out.println("=".repeat(50));
+						System.out.println("현재 보유 포인트 : " + point);
+						break;
+					} else if (wAnswer == 3) {
+						System.out.println(nCount + "번째 재도전");
+						System.out.println("점수가 부족하여 힌트없이 진행");
+					}
 				}
-
 			}
-			
 		}
 	}
 
+	protected void answer() {
+		System.out.println("정답");
+		point += 3;
+		System.out.println("현재 보유 포인트 : " + point);
+	}
+
 	protected WordVO getWord() {
-		rnd.nextInt(100);
+
 		int nSize = wordList.size();
 		int num = rnd.nextInt(nSize);
 
@@ -170,39 +175,116 @@ public class OneDayWordImplV1 implements WordService {
 
 		return wordVO;
 	}
-	
+
+	protected Integer wrongAnswer() {
+		WordVO vo = this.getWord();
+		while (true) {
+			nCount++;
+
+			if (nCount > 3) {
+				System.out.println("=".repeat(50));
+				System.out.println("재도전 불가");
+				System.out.println("=".repeat(50));
+				return 2;
+			}
+
+			System.out.println("=".repeat(50));
+			System.out.println("오답입니다");
+			System.out.println("-".repeat(50));
+			System.out.println("1. 재도전 : -1");
+			System.out.println("2. 건너뛰기 : -1");
+			System.out.println("-".repeat(50));
+			System.out.print(">> ");
+			String strNum = scan.nextLine();
+			Integer intNum = Integer.valueOf(strNum);
+			
+			if (intNum == 1) {
+				point--;
+				System.out.println("현재 보유 포인트 : " + point);
+				System.out.println("-".repeat(50));
+				System.out.println("힌트확인시 -1포인트 차감 YES/NO");
+				System.out.println("-".repeat(50));
+				System.out.print(">> ");
+				String hint = scan.nextLine();
+
+				if (hint.equals("YES")) {
+					if (point > 0) {
+						point -= 1;
+						System.out.println("현재 보유 포인트 : " + point);
+						return 1;
+					}
+					System.out.println("포인트가 부족합니다");
+				}
+			} else if (intNum == 2) {
+				return 2;
+			}
+			return 3;
+		}
+	}
+
 	@Override
 	public void saveWord() {
-		String fileName = null;
-		while(true) {
+		
+		while (true) {
 			System.out.println("저장할 파일이름을 입력");
 			System.out.print(">> ");
-			fileName = scan.nextLine();
-			if(fileName.equals("")) {
-				System.out.println("파일이름을 입력하시오");
+			String fileName = scan.nextLine();
+
+			FileWriter fileWriter = null;
+			PrintWriter out = null;
+
+			fileName = "src/com/callor/word" + fileName;
+
+			try {
+				fileWriter = new FileWriter(fileName);
+				out = new PrintWriter(fileWriter);
+
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				System.out.println("파일을 생성할 수 없습니다");
+				System.out.println("파일 이름을 다시 입력해주세요");
 				continue;
 			}
+			System.out.println("파일에 저장되었습니다");
 			break;
 		}
-		String strFileName = "src/com/callor/word" + fileName;
-		
-		FileWriter fileWriter = null;
-		PrintWriter out = null;
-		
-		try {
-			fileWriter = new FileWriter(strFileName);
-			out = new PrintWriter(fileWriter);
-			
-			out.flush();
-			out.close();
-		} catch (IOException e) {
+	}
+
+	public Integer loadScore() {
+		while (true) {
+			System.out.println("저장했던 파일의 이름을 입력해주세요");
+			System.out.print(">> ");
+			String scanFile = scan.nextLine();
+			String fileName = "src/com/callor/word/" + scanFile;
+
+			FileReader fileReader = null;
+			BufferedReader buffer = null;
+			Integer intScore = null;
+
+			try {
+				fileReader = new FileReader(fileName);
+				buffer = new BufferedReader(fileReader);
+
+				String reader = new String();
+				while ((reader = buffer.readLine()) == null) {
+					intScore = Integer.valueOf(reader);
+				}
+				buffer.close();
+			} catch (FileNotFoundException e) {
+				System.out.println(fileName + "이 존재하지 않습니다");
+				continue;
+			} catch (IOException e) {
+				System.out.println("파일을 불러오는 중 문제가 발생하였습니다");
+				continue;
+			}
+			return intScore;
 		}
-				
 	}
 
 	@Override
 	public void scoreWord() {
-		
+
 	}
 
 	@Override
