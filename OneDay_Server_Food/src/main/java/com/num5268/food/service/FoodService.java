@@ -2,15 +2,15 @@ package com.num5268.food.service;
 
 import java.util.List;
 
-import com.num5268.food.model.FoodVO;
-import com.num5268.food.model.MyFoodVO;
+import com.num5268.food.model.FoodDTO;
+import com.num5268.food.model.MyFoodDTO;
 
 public interface FoodService {
 	
 	
-	public List<FoodVO> findFoodName(String fname);
+	public List<FoodDTO> findFoodName(String fname);
 	
-	public List<MyFoodVO> MyFoodDate(String date);
+	public List<MyFoodDTO> MyFoodDate(String date);
 	
 	
 

@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.num5268.food.model.FoodVO;
-import com.num5268.food.model.MyFoodVO;
+import com.num5268.food.model.FoodDTO;
+import com.num5268.food.model.MyFoodDTO;
 import com.num5268.food.persistence.DBContract;
 import com.num5268.food.service.FoodService;
 
@@ -19,13 +19,13 @@ public class FoodServiceImplV1 implements FoodService {
 		dbConn = DBContract.getDbConn();
 	}
 	
-	protected List<FoodVO> select(PreparedStatement pStr) 
+	protected List<FoodDTO> select(PreparedStatement pStr) 
 			throws SQLException{
-		List<FoodVO> fdList = new ArrayList<FoodVO>();
+		List<FoodDTO> fdList = new ArrayList<FoodDTO>();
 		ResultSet rStr = pStr.executeQuery();
 		while(rStr.next()) {
 			
-			FoodVO fdVO = new FoodVO();
+			FoodDTO fdVO = new FoodDTO();
 			fdVO.setFd_fcode(rStr.getString("식품코드"));
 			fdVO.setFd_fname(rStr.getString("식품명"));
 			fdVO.setFd_num(rStr.getInt("출시년"));
@@ -43,14 +43,14 @@ public class FoodServiceImplV1 implements FoodService {
 		return fdList;
 	}
 	@Override
-	public List<FoodVO> findFoodName(String fname) {
+	public List<FoodDTO> findFoodName(String fname) {
 		
 		String sql = " SELECT * FROM VIEW_식품정보 ";
 		PreparedStatement pStr = null;
 		
 		try {
 			pStr = dbConn.prepareStatement(sql);
-			List<FoodVO> fdList = this.select(pStr);
+			List<FoodDTO> fdList = this.select(pStr);
 			pStr.close();
 			return fdList;
 		} catch (SQLException e) {
@@ -61,8 +61,16 @@ public class FoodServiceImplV1 implements FoodService {
 	}
 
 	@Override
-	public List<MyFoodVO> MyFoodDate(String date) {
-		// TODO Auto-generated method stub
+	public List<MyFoodDTO> MyFoodDate(String date) {
+		String sql = " SELECT * FROM VIEW_식품정보 ";
+		sql = " WHERE 식품코드 = 0 ";
+		PreparedStatement pStr = null;
+		try {
+			pStr = dbConn.prepareStatement(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 

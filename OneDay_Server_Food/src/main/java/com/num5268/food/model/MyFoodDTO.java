@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class MyFoodVO {
+public class MyFoodDTO {
 	 
 		private String mf_isbn;// CHAR(6) PRIMARY KEY,
 		private String mf_date;// VARCHAR2(15) NOT NULL,

@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodVO {
+public class FoodDTO {
 	
 	private String fd_fcode;//	CHAR(7)		PRIMARY KEY,
 	private String fd_fname;//	nVARCHAR2(50)	NOT NULL,	
